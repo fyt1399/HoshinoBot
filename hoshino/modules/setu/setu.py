@@ -9,7 +9,7 @@ from nonebot.exceptions import CQHttpError
 from hoshino import R, Service, Privilege
 from hoshino.util import FreqLimiter, DailyNumberLimiter
 
-_max = 5
+_max = 999
 EXCEED_NOTICE = f'您今天已经冲过{_max}次了，请明早5点后再来！'
 _nlmt = DailyNumberLimiter(_max)
 _flmt = FreqLimiter(5)
@@ -31,15 +31,15 @@ def get_setu():
     return setu_gener.__next__()
 
 
-@sv.on_rex(re.compile(r'不够[涩瑟色]|[涩瑟色]图|来一?[点份张].*[涩瑟色]|再来[点份张]|看过了|铜'), normalize=True)
-async def setu(bot:NoneBot, ctx, match):
+@on_command('setu',patterns = ('色图'),only_to_me=True)
+async def setu(session:CommandSession):
     """随机叫一份涩图，对每个用户有冷却时间"""
-    uid = ctx['user_id']
+    uid = session.ctx['user_id']
     if not _nlmt.check(uid):
-        await bot.send(ctx, EXCEED_NOTICE, at_sender=True)
+        await session.send(EXCEED_NOTICE, at_sender=True)
         return
     if not _flmt.check(uid):
-        await bot.send(ctx, '您冲得太快了，请稍候再冲', at_sender=True)
+        await session.send('您冲得太快了，请稍候再冲', at_sender=True)
         return
     _flmt.start_cd(uid)
     _nlmt.increase(uid)
@@ -47,10 +47,10 @@ async def setu(bot:NoneBot, ctx, match):
     # conditions all ok, send a setu.
     pic = get_setu()
     try:
-        await bot.send(ctx, pic.cqcode)
+        await session.send(pic.cqcode)
     except CQHttpError:
         sv.logger.error(f"发送图片{pic.path}失败")
         try:
-            await bot.send(ctx, '涩图太涩，发不出去勒...')
+            await session.send('涩图太涩，发不出去勒...')
         except:
             pass

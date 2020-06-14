@@ -73,7 +73,7 @@ async def ban_word(session):
         msg_from += f'@[讨论组:{ctx["discuss_id"]}]'
     logger.critical(f'Self: {ctx["self_id"]}, Message {ctx["message_id"]} from {msg_from}: {ctx["message"]}')
     # await session.send(random.choice(BANNED_WORD))
-    Service.set_block_user(user_id, timedelta(hours=8))
+    Service.set_block_user(user_id, timedelta(minutes=5))
     pic = R.img(f"chieri{random.randint(1, 4)}.jpg").cqcode
-    await session.send(f"不理你啦！バーカー\n{pic}", at_sender=True)
-    await util.silence(session.ctx, 8*60*60)
+    await session.send(f"不许骂透哥分身操！\n{pic}", at_sender=True)
+    await util.silence(session.ctx, 5 * 60)
